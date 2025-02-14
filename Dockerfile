@@ -10,7 +10,7 @@ COPY . /src
 WORKDIR /src
 
 # Instalar as dependências do projeto com Poetry
-RUN poetry install
+RUN poetry install --no-root
 
 # Expor a porta em que a aplicação estará escutando
 EXPOSE 8501
