@@ -1,9 +1,10 @@
 import streamlit as st
 import requests
 import pandas as pd
+import certifi
 
 # URL da sua API FastAPI
-API_URL = "http://127.0.0.1:8000"
+API_URL = "https://api-streamlit-7h4o.onrender.com"
 
 
 # Função para consultar a API
@@ -12,7 +13,7 @@ def consultar_api(**kwargs):  # Aceita qualquer número de argumentos nomeados
     for key, value in kwargs.items():
         if value:
             params[key] = value
-    response = requests.get(f"{API_URL}/produtos", params=params)
+    response = requests.get(f"{API_URL}/produtos", params=params, verify=certifi.where())
     if response.status_code == 200:
         return response.json()
     else:
