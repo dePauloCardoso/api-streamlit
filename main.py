@@ -1,57 +1,15 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-import database
-# import uuid
-# from dotenv import load_dotenv
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
 
-
-
-# Definição do modelo da tabela ppg_sae_2025
-class Produto(Base):
-    __tablename__ = "ppg_sae_2025"
-    # id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True) # Nova chave primária
-    cod_insersao = Column(String, index=True)
-    descricao_kit = Column(String)
-    cod_kit = Column(String)
-    cod_sku = Column(String, index=True)
-    descricao_sku = Column(String)
-    segmento = Column(String)
-    serie = Column(String)
-    volume = Column(String)
-    envio = Column(String)
-    frequencia = Column(String)
-    usuario = Column(String)
-    info_produto = Column(String)
-    tipo_material = Column(String)
-    classificacao_produto = Column(String)
-    personalizacao = Column(String)
-
-# Criação da tabela (se não existir)
-Base.metadata.create_all(bind=engine)
-
-# Definição do modelo de entrada
-class ProdutoInput(BaseModel):
-    cod_insersao: str
-    descricao_kit: str
-    cod_kit: str
-    cod_sku: str
-    descricao_sku: str
-    segmento: str
-    serie: str
-    volume: str
-    envio: str
-    frequencia: str
-    usuario: str
-    info_produto: str
-    tipo_material: str
-    classificacao_produto: str
-    personalizacao: str
+from database import get_db
+from models import Produto
+from schema import ProdutoInput
 
 # Inicialização da API
 app = FastAPI()
 
 # Rota para obter todos os produtos
-@app.get("/produtos")
+@app.get("/produtos", response_model=list[Produto])  # Adicione response_model para tipagem
 def get_produtos(
     cod_insersao: str = None,
     cod_sku: str = None,
@@ -59,9 +17,9 @@ def get_produtos(
     serie: str = None,
     envio: str = None,
     usuario: str = None,
-    personalizacao: str = None
+    personalizacao: str = None,
+    db: Session = Depends(get_db)
 ):
-    db = SessionLocal()
     query = db.query(Produto)
 
     if cod_insersao:
@@ -80,13 +38,10 @@ def get_produtos(
         query = query.filter(Produto.personalizacao == personalizacao)
 
     produtos = query.all()
-    db.close()
     return produtos
 
 # Rota para obter um produto pelo código de inserção
-@app.get("/produtos/{cod_insersao}")
-def get_produto(cod_insersao: str):
-    db = SessionLocal()
-    produto = db.query(Produto).filter(Produto.cod_insersao == cod_insersao).all()
-    db.close()
+@app.get("/produtos/{id}", response_model=Produto)  # Busca por ID (UUID)
+def get_produto(id: str, db: Session = Depends(get_db)):
+    produto = db.query(Produto).filter(Produto.id == id).first()  # Use first() para retornar um único produto
     return produto

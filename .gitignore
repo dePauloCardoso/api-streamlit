@@ -1,5 +1,3 @@
 data
 .env
-database.py
 .venv
-load_csv.py
