@@ -4,12 +4,13 @@ from sqlalchemy.orm import Session
 from database import get_db
 from models import Produto
 from schema import ProdutoInput
+from typing import  List
 
 # Inicialização da API
 app = FastAPI()
 
 # Rota para obter todos os produtos
-@app.get("/produtos", response_model=list[Produto])  # Adicione response_model para tipagem
+@app.get("/produtos", response_model=List[Produto])  # Adicione response_model para tipagem
 def get_produtos(
     cod_insersao: str = None,
     cod_sku: str = None,
